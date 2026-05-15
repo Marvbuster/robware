@@ -1,6 +1,132 @@
 @import 'tailwindcss';
 @import './fonts.css';
 
+/* =============================================================================
+ * Design tokens (ROB-8). Tailwind v4 picks these up via @theme so utilities like
+ * bg-editorial-paper, p-4, rounded-pill, etc. resolve to the same values.
+ *
+ * Inside the poster frame, components reference ONLY the semantic aliases
+ *   --paper / --ink / --accent / --mute
+ * which the active data-preset binds to the per-preset palette below. UI chrome
+ * (the controls column and preview stage) lives outside the frame and uses its
+ * own --ui-* tokens — it is intentionally independent of the active poster
+ * preset (see ROB-8 out-of-scope notes on dark-mode chrome).
+ *
+ * Contrast (sRGB, ink-on-paper) was checked against WCAG 2.1:
+ *   editorial  F4EFE6 / 161412 → 17.0:1  AAA
+ *   monolith   0B0B0C / F6F5F1 → 18.4:1  AAA
+ *   salon      F2D7D0 / 2A1414 → 12.7:1  AAA
+ *   vapor      1A1C22 / E8E6FF → 13.4:1  AAA
+ * All four exceed AA body (4.5) and AAA large-text headline (4.5) by a wide
+ * margin. Accent-on-paper passes AA for the eyebrow/accent UI (≥3:1 large) and
+ * AAA for editorial/monolith/salon; vapor accent (7C6BFF on 1A1C22) is AA-only
+ * — it is reserved for the dot/rule, never body. Mute-on-paper is intended for
+ * captions only and stays above 3.5:1 in every preset.
+ * ===========================================================================*/
+
+@theme {
+  /* --- Palette: Editorial ------------------------------------------------- */
+  --color-editorial-paper: #f4efe6;
+  --color-editorial-ink: #161412;
+  --color-editorial-accent: #a8341b;
+  --color-editorial-mute: #7a6f62;
+
+  /* --- Palette: Monolith -------------------------------------------------- */
+  --color-monolith-paper: #0b0b0c;
+  --color-monolith-ink: #f6f5f1;
+  --color-monolith-accent: #c4a267;
+  --color-monolith-mute: #6b6b6b;
+
+  /* --- Palette: Salon ----------------------------------------------------- */
+  --color-salon-paper: #f2d7d0;
+  --color-salon-ink: #2a1414;
+  --color-salon-accent: #5a2a1f;
+  --color-salon-mute: #8c5e55;
+
+  /* --- Palette: Vapor ----------------------------------------------------- */
+  --color-vapor-paper: #1a1c22;
+  --color-vapor-ink: #e8e6ff;
+  --color-vapor-accent: #7c6bff;
+  --color-vapor-mute: #8e8ab8;
+
+  /* --- UI chrome (independent of poster preset) --------------------------- */
+  --color-ui-bg: #0a0a0f;
+  --color-ui-fg: #f4f4f0;
+  --color-ui-mute: #8a8a92;
+  --color-ui-line: #1f1f25;
+  --color-ui-accent: #c6ff3a;
+
+  /* --- Spacing scale ------------------------------------------------------ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* --- Radii -------------------------------------------------------------- */
+  --radius-0: 0; /* poster + export */
+  --radius-sm: 6px; /* inputs, chips */
+  --radius-md: 12px; /* cards (none in v0) */
+  --radius-pill: 9999px;
+
+  /* --- Motion ------------------------------------------------------------- */
+  --duration-fast: 120ms;
+  --duration-normal: 240ms;
+  --duration-slow: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* --- Type --------------------------------------------------------------- */
+  --font-display-serif: 'Fraunces', 'Times New Roman', Times, serif;
+  --font-display-italic: 'Instrument Serif', 'Times New Roman', Times, serif;
+  --font-display-sans: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-ui: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* =============================================================================
+ * Semantic aliases per preset. Anything inside .poster-frame should reference
+ * only --paper / --ink / --accent / --mute (and the type/motion tokens). To
+ * switch a poster's preset, change [data-preset] on the .poster — that's it.
+ * ===========================================================================*/
+
+.poster[data-preset='editorial'] {
+  --paper: var(--color-editorial-paper);
+  --ink: var(--color-editorial-ink);
+  --accent: var(--color-editorial-accent);
+  --mute: var(--color-editorial-mute);
+}
+.poster[data-preset='monolith'] {
+  --paper: var(--color-monolith-paper);
+  --ink: var(--color-monolith-ink);
+  --accent: var(--color-monolith-accent);
+  --mute: var(--color-monolith-mute);
+}
+.poster[data-preset='salon'] {
+  --paper: var(--color-salon-paper);
+  --ink: var(--color-salon-ink);
+  --accent: var(--color-salon-accent);
+  --mute: var(--color-salon-mute);
+}
+.poster[data-preset='vapor'] {
+  --paper: var(--color-vapor-paper);
+  --ink: var(--color-vapor-ink);
+  --accent: var(--color-vapor-accent);
+  --mute: var(--color-vapor-mute);
+}
+
+/* =============================================================================
+ * Base
+ * ===========================================================================*/
+
+:root {
+  font-family: var(--font-ui);
+  color-scheme: dark;
+}
+
 html,
 body,
 #root {
@@ -8,5 +134,610 @@ body,
 }
 
 body {
-  font-family: var(--font-sans);
+  background:
+    radial-gradient(60% 60% at 0% 0%, rgba(139, 92, 246, 0.08), transparent 70%),
+    radial-gradient(50% 60% at 100% 0%, rgba(56, 189, 248, 0.06), transparent 70%),
+    var(--color-ui-bg);
+  color: var(--color-ui-fg);
+}
+
+/* ---------- App shell ---------- */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: minmax(360px, 460px) 1fr;
+  min-height: 100vh;
+  gap: 0;
+}
+
+@media (max-width: 960px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Controls ---------- */
+
+.controls {
+  padding: var(--space-12) var(--space-8);
+  border-right: 1px solid var(--color-ui-line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%);
+}
+
+@media (max-width: 960px) {
+  .controls {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-ui-line);
+    padding: var(--space-8) var(--space-6) var(--space-8);
+  }
+}
+
+.controls-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.controls-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-ui-mute);
+  font-weight: 500;
+}
+
+.controls-eyebrow-dot {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-ui-accent);
+  box-shadow: 0 0 12px rgba(198, 255, 58, 0.7);
+}
+
+.controls-title {
+  font-family: var(--font-display-serif);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.controls-title-soft {
+  color: var(--color-ui-mute);
+}
+
+.controls-lede {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-ui-mute);
+  margin: 0;
+  max-width: 38ch;
+}
+
+.controls-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.controls-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-ui-mute);
+  font-weight: 500;
+}
+
+.controls-label-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+
+.controls-textarea {
+  width: 100%;
+  resize: none;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-ui-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-family: var(--font-display-serif);
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--color-ui-fg);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.controls-textarea::placeholder {
+  color: rgba(244, 244, 240, 0.3);
+  font-style: italic;
+}
+
+.controls-textarea:focus {
+  outline: none;
+  border-color: rgba(198, 255, 58, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(198, 255, 58, 0.08);
+}
+
+/* ---------- Preset grid ---------- */
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.preset-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-ui-line);
+  border-radius: var(--radius-md);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.preset-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.preset-card[data-active='true'] {
+  border-color: rgba(198, 255, 58, 0.55);
+  background: rgba(198, 255, 58, 0.06);
+  box-shadow: 0 0 0 1px rgba(198, 255, 58, 0.25) inset;
+}
+
+.preset-card:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 2px;
+}
+
+.preset-swatches {
+  display: inline-flex;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  width: var(--space-8);
+  height: var(--space-8);
+  flex-shrink: 0;
+  border: 1px solid var(--color-ui-line);
+}
+
+.preset-swatches span {
+  display: block;
+  flex: 1;
+}
+
+.preset-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.preset-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ui-fg);
+  letter-spacing: -0.005em;
+}
+
+.preset-tagline {
+  font-size: 11px;
+  color: var(--color-ui-mute);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Aspect row ---------- */
+
+.aspect-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.aspect-chip {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-ui-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.aspect-chip:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.aspect-chip[data-active='true'] {
+  border-color: rgba(198, 255, 58, 0.55);
+  background: rgba(198, 255, 58, 0.06);
+}
+
+.aspect-chip:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 2px;
+}
+
+.aspect-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-ui-fg);
+  letter-spacing: 0.02em;
+}
+
+.aspect-hint {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-ui-mute);
+}
+
+/* ---------- Actions ---------- */
+
+.controls-actions {
+  margin-top: auto;
+  gap: var(--space-3);
+}
+
+.download-button {
+  width: 100%;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-ui-accent);
+  color: var(--color-monolith-paper); /* near-black ink intentionally — readable on lime */
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  border: none;
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    filter var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+  box-shadow: 0 12px 32px -16px rgba(198, 255, 58, 0.6);
+}
+
+.download-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.download-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.download-button:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 3px;
+}
+
+.download-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.download-error {
+  font-size: 12px;
+  color: var(--color-editorial-accent); /* warm red shared with editorial preset */
+  margin: 0;
+}
+
+.controls-fineprint {
+  font-size: 11px;
+  color: var(--color-ui-mute);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+/* ---------- Preview / stage ---------- */
+
+.preview {
+  position: relative;
+  min-height: 100vh;
+  padding: var(--space-8);
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(167, 139, 250, 0.06), transparent 70%), transparent;
+}
+
+@media (max-width: 960px) {
+  .preview {
+    min-height: 60vh;
+    padding: var(--space-6);
+  }
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 760px;
+  max-height: 80vh;
+  display: grid;
+  place-items: center;
+}
+
+.stage-scaler {
+  transform-origin: center center;
+  filter: drop-shadow(0 30px 80px rgba(0, 0, 0, 0.5));
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* =============================================================================
+ * Poster (the exported surface) — token-only styling below this point. The
+ * surface is square-cut (radius-0) on purpose for export. Components that live
+ * inside .poster-frame must reference only --paper / --ink / --accent / --mute,
+ * the type tokens, and the motion tokens.
+ * ===========================================================================*/
+
+.poster {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-0);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.poster-frame {
+  position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: var(--space-24) var(--space-16);
+  gap: var(--space-12);
+  z-index: 1;
+}
+
+.poster[data-aspect='story'] .poster-frame {
+  padding: var(--space-32) var(--space-24);
+  gap: var(--space-16);
+}
+
+.poster-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-display-sans);
+  font-size: 20px;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--mute);
+}
+
+.poster-eyebrow-dot {
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+
+.poster-body {
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.poster-text {
+  margin: 0;
+  max-width: 18ch;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+.poster-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  font-family: var(--font-display-sans);
+  font-size: 20px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.poster-mark {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.poster-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--mute);
+  opacity: 0.5;
+}
+
+.poster-meta {
+  white-space: nowrap;
+}
+
+/* ---------- Preset: Editorial (Fraunces, cream paper, oxblood accent) ---- */
+
+.poster[data-preset='editorial'] {
+  font-family: var(--font-display-serif);
+}
+
+.poster[data-preset='editorial'] .poster-text {
+  font-family: var(--font-display-serif);
+  font-weight: 400;
+  font-size: 132px;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-feature-settings:
+    'lnum' 1,
+    'kern' 1,
+    'liga' 1;
+}
+
+.poster[data-preset='editorial'][data-aspect='story'] .poster-text {
+  font-size: 156px;
+}
+
+.poster[data-preset='editorial'][data-aspect='square'] .poster-text {
+  font-size: 116px;
+}
+
+.poster[data-preset='editorial']::before {
+  content: '';
+  position: absolute;
+  inset: var(--space-8);
+  border: 1px solid var(--mute);
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* ---------- Preset: Monolith (Space Grotesk, near-black paper, gold) ---- */
+
+.poster[data-preset='monolith'] {
+  font-family: var(--font-display-sans);
+}
+
+.poster[data-preset='monolith'] .poster-text {
+  font-family: var(--font-display-sans);
+  font-weight: 700;
+  font-size: 138px;
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.poster[data-preset='monolith'][data-aspect='story'] .poster-text {
+  font-size: 168px;
+}
+
+.poster[data-preset='monolith'][data-aspect='square'] .poster-text {
+  font-size: 124px;
+}
+
+.poster[data-preset='monolith']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--space-3);
+  background: var(--accent);
+}
+
+/* ---------- Preset: Salon (Instrument Serif italic, blush paper, oxblood) */
+
+.poster[data-preset='salon'] {
+  font-family: var(--font-display-italic);
+}
+
+.poster[data-preset='salon'] .poster-text {
+  font-family: var(--font-display-italic);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 134px;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+.poster[data-preset='salon'][data-aspect='story'] .poster-text {
+  font-size: 162px;
+}
+
+.poster[data-preset='salon'][data-aspect='square'] .poster-text {
+  font-size: 118px;
+}
+
+.poster[data-preset='salon'] .poster-rule {
+  background: var(--accent);
+  opacity: 0.7;
+}
+
+/* ---------- Preset: Vapor (Inter, deep indigo paper, violet accent) ------ */
+
+.poster[data-preset='vapor'] {
+  font-family: var(--font-ui);
+}
+
+.poster[data-preset='vapor'] .poster-text {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 132px;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.poster[data-preset='vapor'][data-aspect='story'] .poster-text {
+  font-size: 158px;
+}
+
+.poster[data-preset='vapor'][data-aspect='square'] .poster-text {
+  font-size: 118px;
+}
+
+.poster[data-preset='vapor'] .poster-rule {
+  background: var(--accent);
+  opacity: 0.55;
+}
+
+/* =============================================================================
+ * Reduced motion. Per ROB-8 spec: collapse all motion to opacity-only crossfades
+ * at --duration-fast. We do this by (a) flattening the duration tokens, (b)
+ * disabling transform/filter/box-shadow transitions globally, and (c) clamping
+ * any prior transform.
+ * ===========================================================================*/
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-normal: var(--duration-fast);
+    --duration-slow: var(--duration-fast);
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-property: opacity !important;
+    transition-duration: var(--duration-fast) !important;
+    animation-duration: var(--duration-fast) !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .preset-card:hover,
+  .aspect-chip:hover,
+  .download-button:hover:not(:disabled) {
+    transform: none;
+  }
 }
