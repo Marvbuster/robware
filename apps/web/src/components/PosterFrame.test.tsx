@@ -76,7 +76,23 @@ describe('PosterFrame', () => {
     const { container } = render(<PosterFrame ratio="9x16" preset="editorial" text="Margins" />);
     const frame = container.querySelector<HTMLElement>('.poster-frame');
     // shortest edge = 1080 → 5.5% = 59.4 → rounded to 59
-    expect(frame?.style.getPropertyValue('--pframe-safe-margin')).toBe('59px');
+    expect(frame?.style.getPropertyValue('--safe-margin')).toBe('59px');
+  });
+
+  it('exposes frame dimensions via CSS variables consumed by <Watermark/>', () => {
+    const { container } = render(<PosterFrame ratio="4x5" preset="editorial" text="vars" />);
+    const frame = container.querySelector<HTMLElement>('.poster-frame');
+    expect(frame?.style.getPropertyValue('--frame-w')).toBe('1080px');
+    expect(frame?.style.getPropertyValue('--frame-h')).toBe('1350px');
+  });
+
+  it('renders the watermark via <Watermark/> (not an inline span)', () => {
+    const { container } = render(<PosterFrame ratio="1x1" preset="editorial" text="hi" />);
+    const mark = container.querySelector<HTMLElement>('.poster-frame__watermark');
+    expect(mark).not.toBeNull();
+    // The ROB-10 <Watermark/> component tags itself with data-watermark.
+    expect(mark?.getAttribute('data-watermark')).toBe('robware');
+    expect(mark?.textContent).toBe('robware');
   });
 
   it('forwards the frame ref to the root element', () => {

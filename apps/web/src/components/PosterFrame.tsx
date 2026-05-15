@@ -17,6 +17,7 @@ import {
   pickFontSize,
   type PosterRatio,
 } from './posterFrame.fit';
+import { Watermark } from './Watermark';
 
 export interface PosterFrameProps {
   ratio: PosterRatio;
@@ -117,9 +118,9 @@ export const PosterFrame = forwardRef<HTMLDivElement, PosterFrameProps>(function
       ({
         width: spec.width,
         height: spec.height,
-        '--pframe-w': `${spec.width}px`,
-        '--pframe-h': `${spec.height}px`,
-        '--pframe-safe-margin': `${safeMargin}px`,
+        '--frame-w': `${spec.width}px`,
+        '--frame-h': `${spec.height}px`,
+        '--safe-margin': `${safeMargin}px`,
       }) as CSSProperties,
     [spec.width, spec.height, safeMargin],
   );
@@ -144,9 +145,7 @@ export const PosterFrame = forwardRef<HTMLDivElement, PosterFrameProps>(function
         </h1>
       </div>
 
-      <div className="poster-frame__watermark-slot">
-        <span className="poster-frame__watermark">robware</span>
-      </div>
+      <Watermark className="poster-frame__watermark" />
 
       {debugGrid && <PosterFrameDebugOverlay ratio={ratio} />}
 

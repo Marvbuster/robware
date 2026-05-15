@@ -49,3 +49,22 @@ export const ASPECTS: Aspect[] = [
 ];
 
 export const DEFAULT_TEXT = 'The thing you keep almost saying. Say it. Set it. Ship it.';
+
+// Rotating example texts (design bar §5). Hard refresh picks one at random so
+// the first paint is always a finished poster of a real sentence — never a
+// placeholder. DEFAULT_TEXT stays in the set as the original sentence.
+export const EXAMPLE_TEXTS: readonly string[] = [
+  DEFAULT_TEXT,
+  'Make something a stranger would screenshot.',
+  'Small idea, set big.',
+  "You're closer than you think.",
+  'The work that scares you is the work.',
+  "Build the version you'd want to receive.",
+  'A sentence is a kind of monument.',
+  "Begin before you're ready.",
+];
+
+export function pickExampleText(seed: number = Math.random()): string {
+  const i = Math.floor(seed * EXAMPLE_TEXTS.length) % EXAMPLE_TEXTS.length;
+  return EXAMPLE_TEXTS[i];
+}

@@ -4,7 +4,7 @@ import { ExportToast } from './components/export/ExportToast';
 import { useExport } from './components/export/useExport';
 import { PosterStage } from './components/PosterStage';
 import { WatermarkDemo } from './components/__demo__/WatermarkDemo';
-import { ASPECTS, DEFAULT_TEXT, PRESETS } from './presets';
+import { ASPECTS, PRESETS, pickExampleText } from './presets';
 import type { AspectId, PresetId } from './types';
 
 // Read ?preset= / ?aspect= so a poster look is shareable as a URL. Falls back
@@ -31,7 +31,7 @@ const PRESET_IDS = PRESETS.map((p) => p.id) as readonly PresetId[];
 const ASPECT_IDS = ASPECTS.map((a) => a.id) as readonly AspectId[];
 
 export function App() {
-  const [text, setText] = useState(DEFAULT_TEXT);
+  const [text, setText] = useState(() => pickExampleText());
   const [presetId, setPresetId] = useState<PresetId>(() =>
     readInitial('preset', PRESET_IDS, 'editorial'),
   );

@@ -98,24 +98,40 @@
   --ink: var(--color-editorial-ink);
   --accent: var(--color-editorial-accent);
   --mute: var(--color-editorial-mute);
+  --display-face: var(--font-display-serif);
+  --watermark-tracking: 0.08em;
+  --watermark-overhang: 0.04em;
 }
 .poster-frame[data-preset='monolith'] {
   --paper: var(--color-monolith-paper);
   --ink: var(--color-monolith-ink);
   --accent: var(--color-monolith-accent);
-  --mute: var(--color-monolith-mute);
+  /* §5 visibility bump: the spec mute (#6B6B6B) on monolith paper is WCAG AA
+     but reads as receding to the point of disappearing. Bumping to #8a8a8a
+     preserves the recessed feel (still ~6.6:1) without competing with the
+     headline at ink-white 18.4:1. */
+  --mute: #8a8a8a;
+  --display-face: var(--font-display-sans);
+  --watermark-tracking: 0.08em;
+  --watermark-overhang: 0.02em;
 }
 .poster-frame[data-preset='salon'] {
   --paper: var(--color-salon-paper);
   --ink: var(--color-salon-ink);
   --accent: var(--color-salon-accent);
   --mute: var(--color-salon-mute);
+  --display-face: var(--font-display-italic);
+  --watermark-tracking: 0.06em;
+  --watermark-overhang: 0.06em;
 }
 .poster-frame[data-preset='vapor'] {
   --paper: var(--color-vapor-paper);
   --ink: var(--color-vapor-ink);
   --accent: var(--color-vapor-accent);
   --mute: var(--color-vapor-mute);
+  --display-face: var(--font-display-sans);
+  --watermark-tracking: 0.08em;
+  --watermark-overhang: 0.03em;
 }
 
 /* =============================================================================
@@ -531,12 +547,18 @@ body {
   /* hanging-punctuation is a v0 spec requirement; ignored by non-supporting
      engines without breaking layout. */
   hanging-punctuation: first last;
+  /* §3 cross-fade: paper/ink/accent tween on preset switch over 240 ms. The
+     reduced-motion block below clamps transition-property to opacity, which
+     turns this into an opacity-only fade automatically. */
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard);
 }
 
 .poster-frame__headline-slot {
   position: absolute;
-  left: var(--pframe-safe-margin);
-  right: var(--pframe-safe-margin);
+  left: var(--safe-margin);
+  right: var(--safe-margin);
   display: flex;
   /* The headline aligns to the BOTTOM of its slot so the baseline of the last
      line sits on the anchor (top-third for 4:5, top-of-bottom-of-headline-band
@@ -546,24 +568,24 @@ body {
 }
 
 .poster-frame[data-ratio='1x1'] .poster-frame__headline-slot {
-  top: var(--pframe-safe-margin);
-  bottom: var(--pframe-safe-margin);
+  top: var(--safe-margin);
+  bottom: var(--safe-margin);
   align-items: center;
 }
 
 .poster-frame[data-ratio='4x5'] .poster-frame__headline-slot {
-  top: var(--pframe-safe-margin);
+  top: var(--safe-margin);
   /* Bottom of the headline slot sits at 33.33% of frame height — the spec's
      "top third baseline". The headline aligns to slot bottom so the last line
      baseline lands on the anchor. */
-  height: calc(33.33% - var(--pframe-safe-margin));
+  height: calc(33.33% - var(--safe-margin));
 }
 
 .poster-frame[data-ratio='9x16'] .poster-frame__headline-slot {
-  top: var(--pframe-safe-margin);
+  top: var(--safe-margin);
   /* Top 40% band; headline aligns to slot bottom so the line stack rests just
      above the negative-space middle. */
-  height: calc(40% - var(--pframe-safe-margin));
+  height: calc(40% - var(--safe-margin));
 }
 
 .poster-frame__headline {
@@ -585,42 +607,18 @@ body {
     'liga' 1,
     'clig' 1,
     'dlig' 1;
+  /* §3 cross-fade pairs the headline color tween with the frame so the
+     paper/ink swap reads as a single fade. */
+  transition: color var(--duration-normal) var(--ease-standard);
 }
 
-.poster-frame__watermark-slot {
-  position: absolute;
-  right: var(--pframe-safe-margin);
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-}
-
-.poster-frame[data-ratio='1x1'] .poster-frame__watermark-slot,
-.poster-frame[data-ratio='4x5'] .poster-frame__watermark-slot {
-  bottom: var(--pframe-safe-margin);
-}
-
-.poster-frame[data-ratio='9x16'] .poster-frame__watermark-slot {
-  left: var(--pframe-safe-margin);
-  bottom: 0;
-  height: 12%;
-  align-items: center;
-}
-
+/* The <Watermark/> component (ROB-10) positions itself at safe-margin bottom-
+   right via inline style + per-preset CSS variables (--display-face,
+   --watermark-tracking, --watermark-overhang). The class below adds the §3
+   cross-fade for the color tween and is the per-preset hook for opsz/face
+   overrides — visual positioning lives on the component. */
 .poster-frame__watermark {
-  font-family: inherit;
-  font-weight: 500;
-  color: var(--mute);
-  font-feature-settings:
-    'smcp' 1,
-    'c2sc' 1,
-    'kern' 1;
-  letter-spacing: 0.08em;
-  /* 1.4% of the frame's shortest edge per §4 of the design bar. Replaced with
-     the optically-aligned <Watermark/> component in ROB-10. */
-  font-size: calc(min(var(--pframe-w), var(--pframe-h)) * 0.014);
-  line-height: 1;
-  white-space: nowrap;
+  transition: color var(--duration-normal) var(--ease-standard);
 }
 
 /* ---------- Preset display faces (token-driven) ------------------------- */
@@ -631,6 +629,21 @@ body {
 .poster-frame[data-preset='editorial'] .poster-frame__headline {
   font-family: var(--font-display-serif);
   font-weight: 500;
+  /* §4 Fraunces opsz axis. At 88–144 px the display optical size sharpens
+     terminals and tightens contrast versus the default text-grade. SOFT 30
+     keeps the bracketed serifs from feeling too brittle. */
+  font-variation-settings:
+    'opsz' 144,
+    'wght' 500,
+    'SOFT' 30,
+    'WONK' 0;
+}
+.poster-frame[data-preset='editorial'] .poster-frame__watermark {
+  /* Watermark renders at ~15px — opsz 14 keeps it on the text-grade end of
+     Fraunces so the small caps stay legible. */
+  font-variation-settings:
+    'opsz' 14,
+    'wght' 500;
 }
 
 .poster-frame[data-preset='monolith'] {
@@ -682,7 +695,7 @@ body {
 
 .poster-frame__debug-safe {
   position: absolute;
-  inset: var(--pframe-safe-margin);
+  inset: var(--safe-margin);
   outline: 1px dashed rgba(255, 64, 64, 0.55);
   outline-offset: -1px;
 }

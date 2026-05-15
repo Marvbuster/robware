@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { App } from './App';
-import { DEFAULT_TEXT, PRESETS } from './presets';
+import { EXAMPLE_TEXTS, PRESETS } from './presets';
 
 function getPoster(): HTMLElement {
   const main = screen.getByRole('main', { name: /poster preview/i });
@@ -18,10 +18,10 @@ function getHeadlineText(poster: HTMLElement): string {
 }
 
 describe('App', () => {
-  it('renders the controls header and default text in the poster', () => {
+  it('renders the controls header and an example text in the poster', () => {
     render(<App />);
     expect(screen.getByRole('heading', { name: /type a sentence/i })).toBeInTheDocument();
-    expect(getHeadlineText(getPoster())).toBe(DEFAULT_TEXT);
+    expect(EXAMPLE_TEXTS).toContain(getHeadlineText(getPoster()));
   });
 
   it('updates the poster when text changes', () => {
