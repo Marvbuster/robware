@@ -1,5 +1,23 @@
 import type { Aspect, AspectId, Preset, PresetId } from '../types';
 
+export const POSTER_TEXT_MAX = 240;
+
+/**
+ * Hard-stop the textarea at {@link POSTER_TEXT_MAX} characters on a word
+ * boundary. Pasting a long sentence used to chop mid-word (e.g. "…down withou")
+ * which reads as silent data loss. We drop the trailing partial word so users
+ * always see a clean end-of-sentence; if a single word is itself longer than
+ * the cap, we still hard-cut at the cap as a last resort.
+ */
+export function clampPosterText(input: string, max: number = POSTER_TEXT_MAX): string {
+  if (input.length <= max) return input;
+  const head = input.slice(0, max);
+  if (/\s/.test(input.charAt(max))) return head.replace(/\s+$/, '');
+  const lastSpace = head.search(/\s\S*$/);
+  if (lastSpace > 0) return head.slice(0, lastSpace);
+  return head;
+}
+
 interface ControlsProps {
   text: string;
   onTextChange: (next: string) => void;
@@ -47,15 +65,15 @@ export function Controls({
         <label htmlFor="poster-text" className="controls-label">
           Your text
           <span className="controls-label-count" aria-live="polite">
-            {text.length}/240
+            {text.length}/{POSTER_TEXT_MAX}
           </span>
         </label>
         <textarea
           id="poster-text"
           className="controls-textarea"
           value={text}
-          onChange={(e) => onTextChange(e.target.value.slice(0, 240))}
-          maxLength={240}
+          onChange={(e) => onTextChange(clampPosterText(e.target.value))}
+          maxLength={POSTER_TEXT_MAX}
           rows={4}
           placeholder="Write the sentence worth setting…"
           spellCheck
