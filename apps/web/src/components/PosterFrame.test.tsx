@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react';
-import { PosterFrame, POSTER_FRAME_DIMENSIONS, type PosterRatio } from './PosterFrame';
+import { PosterFrame } from './PosterFrame';
+import { POSTER_FRAME_DIMENSIONS, type PosterRatio } from './posterFrame.fit';
 import type { PresetId } from '../types';
 
 const ALL_RATIOS: PosterRatio[] = ['1x1', '4x5', '9x16'];
