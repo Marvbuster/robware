@@ -20,7 +20,9 @@ export const PosterStage = forwardRef<HTMLDivElement, PosterStageProps>(function
     if (typeof stageRef === 'function') stageRef(node);
     else if (stageRef) (stageRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
   };
-  const [scale, setScale] = useState(0.4);
+  // Start at 0 so the first paint doesn't briefly overflow the stage before
+  // the ResizeObserver fires.
+  const [scale, setScale] = useState(0);
 
   useEffect(() => {
     const stage = localStageRef.current;
@@ -36,23 +38,38 @@ export const PosterStage = forwardRef<HTMLDivElement, PosterStageProps>(function
     return () => observer.disconnect();
   }, [aspect.width, aspect.height]);
 
+  // The scaler keeps its true export size (1080 × ratio-height) so the snapshot
+  // path renders at full resolution; transform: scale() shrinks the visual but
+  // not the layout box. The frame wraps the scaler with the *scaled* footprint
+  // so siblings/parents see correct dimensions and the preview pane doesn't
+  // overflow.
+  const frameWidth = aspect.width * scale;
+  const frameHeight = aspect.height * scale;
+
   return (
     <div ref={setStageRef} className="stage">
       <div
-        className="stage-scaler"
-        style={{
-          width: aspect.width,
-          height: aspect.height,
-          transform: `scale(${scale})`,
-        }}
+        className="stage-frame"
+        style={{ width: frameWidth, height: frameHeight }}
       >
-        <PosterFrame
-          ref={posterRef}
-          ratio={aspect.ratio}
-          preset={preset}
-          text={text}
-          debugGrid={debugGrid}
-        />
+        <div
+          className="stage-scaler"
+          style={{
+            width: aspect.width,
+            height: aspect.height,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+            visibility: scale > 0 ? 'visible' : 'hidden',
+          }}
+        >
+          <PosterFrame
+            ref={posterRef}
+            ratio={aspect.ratio}
+            preset={preset}
+            text={text}
+            debugGrid={debugGrid}
+          />
+        </div>
       </div>
     </div>
   );

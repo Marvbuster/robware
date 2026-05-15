@@ -492,11 +492,18 @@ body {
   place-items: center;
 }
 
-.stage-scaler {
-  transform-origin: center center;
+.stage-frame {
+  position: relative;
   filter: drop-shadow(0 30px 80px rgba(0, 0, 0, 0.5));
   border-radius: var(--radius-sm);
   overflow: hidden;
+}
+
+.stage-scaler {
+  transform-origin: top left;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 /* =============================================================================
