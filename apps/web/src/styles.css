@@ -431,12 +431,13 @@ body {
 }
 
 .download-button:hover:not(:disabled) {
-  transform: translateY(-1px);
   filter: brightness(1.04);
 }
 
+/* ROB-11 §UX: press is a 120 ms scale-down to 0.98 on --ease-standard. The
+   transition on `transform` is declared on .download-button above. */
 .download-button:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
 .download-button:focus-visible {
@@ -702,6 +703,49 @@ body {
 }
 
 /* =============================================================================
+ * Export toast (ROB-11 §UX)
+ *
+ *   - Slides in from below + fades in over 180 ms on --ease-standard.
+ *   - Auto-dismisses at 2400 ms (driven by useExport's timer; the CSS only owns
+ *     the enter transition).
+ *   - prefers-reduced-motion: reduce → opacity-only fade at --duration-fast;
+ *     handled by the global block below, which clamps transition-property to
+ *     opacity and zeroes the prior transform.
+ * ===========================================================================*/
+
+.export-toast {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  pointer-events: none;
+  z-index: 50;
+  /* Hidden state: shifted 8 px down + transparent. */
+  transform: translate(-50%, 8px);
+  opacity: 0;
+  transition:
+    transform 180ms var(--ease-standard),
+    opacity 180ms var(--ease-standard);
+}
+
+.export-toast[data-visible='true'] {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.export-toast__filename {
+  display: inline-block;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
+  background: var(--color-monolith-paper);
+  color: var(--color-monolith-ink);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: 0.01em;
+  box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.55);
+}
+
+/* =============================================================================
  * Reduced motion. Per ROB-8 spec: collapse all motion to opacity-only crossfades
  * at --duration-fast. We do this by (a) flattening the duration tokens, (b)
  * disabling transform/filter/box-shadow transitions globally, and (c) clamping
@@ -727,5 +771,16 @@ body {
   .aspect-chip:hover,
   .download-button:hover:not(:disabled) {
     transform: none;
+  }
+
+  /* ROB-11 §UX: reduced motion replaces the press scale with a 120 ms opacity
+     flash, and the toast slide collapses to an opacity-only fade. */
+  .download-button:active:not(:disabled) {
+    transform: none;
+    opacity: 0.85;
+  }
+
+  .export-toast {
+    transform: translate(-50%, 0);
   }
 }

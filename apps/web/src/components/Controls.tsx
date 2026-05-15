@@ -115,8 +115,9 @@ export function Controls({
           className="download-button"
           onClick={onDownload}
           disabled={isDownloading}
+          aria-busy={isDownloading || undefined}
         >
-          {isDownloading ? 'Rendering…' : 'Download PNG'}
+          {isDownloading ? 'Rendering…' : 'Download'}
         </button>
         {downloadError && (
           <p className="download-error" role="alert">

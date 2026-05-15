@@ -1,6 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
-import { toPng } from 'html-to-image';
+import { useRef, useState } from 'react';
 import { Controls } from './components/Controls';
+import { ExportToast } from './components/export/ExportToast';
+import { useExport } from './components/export/useExport';
 import { PosterStage } from './components/PosterStage';
 import { WatermarkDemo } from './components/__demo__/WatermarkDemo';
 import { ASPECTS, DEFAULT_TEXT, PRESETS } from './presets';
@@ -37,39 +38,17 @@ export function App() {
   const [aspectId, setAspectId] = useState<AspectId>(() =>
     readInitial('aspect', ASPECT_IDS, 'portrait'),
   );
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
   const debugGrid = readDebugGrid();
   const demo = readDemo();
 
   const posterRef = useRef<HTMLDivElement | null>(null);
   const aspect = ASPECTS.find((a) => a.id === aspectId) ?? ASPECTS[0];
 
-  const handleDownload = useCallback(async () => {
-    const node = posterRef.current;
-    if (!node) return;
-    setIsDownloading(true);
-    setDownloadError(null);
-    try {
-      await document.fonts.ready;
-      const dataUrl = await toPng(node, {
-        cacheBust: true,
-        pixelRatio: 2,
-        width: aspect.width,
-        height: aspect.height,
-        style: { transform: 'none' },
-      });
-      const link = document.createElement('a');
-      link.download = `robware-poster-${presetId}-${aspect.id}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error('[poster] download failed', err);
-      setDownloadError('Could not render the PNG. Try again, or switch browsers.');
-    } finally {
-      setIsDownloading(false);
-    }
-  }, [aspect.width, aspect.height, aspect.id, presetId]);
+  const { download, isExporting, successFilename, errorMessage } = useExport({
+    posterRef,
+    preset: presetId,
+    aspect,
+  });
 
   if (demo === 'watermark') {
     return <WatermarkDemo showGrid={debugGrid} />;
@@ -86,9 +65,9 @@ export function App() {
         aspects={ASPECTS}
         aspect={aspectId}
         onAspectChange={setAspectId}
-        onDownload={handleDownload}
-        isDownloading={isDownloading}
-        downloadError={downloadError}
+        onDownload={download}
+        isDownloading={isExporting}
+        downloadError={errorMessage}
       />
       <main className="preview" aria-label="Poster preview">
         <PosterStage
@@ -99,6 +78,7 @@ export function App() {
           posterRef={posterRef}
         />
       </main>
+      <ExportToast filename={successFilename} />
     </div>
   );
 }
