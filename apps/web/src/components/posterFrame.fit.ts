@@ -7,13 +7,20 @@
 
 export type PosterRatio = '1x1' | '4x5' | '9x16';
 
+/**
+ * Per-ratio frame spec. `slotHeightRatio` is the fraction of frame height the
+ * headline slot occupies (matches the CSS rules in styles.css for each ratio).
+ * The fit routine uses this to enforce a vertical fit constraint — otherwise
+ * a large size with line count ≤ lineCap can still overflow the slot vertically
+ * because line-height × lineCap may exceed the slot's pixel height.
+ */
 export const POSTER_FRAME_DIMENSIONS: Record<
   PosterRatio,
-  { width: number; height: number; lineCap: number }
+  { width: number; height: number; lineCap: number; slotHeightRatio: number }
 > = {
-  '1x1': { width: 1080, height: 1080, lineCap: 4 },
-  '4x5': { width: 1080, height: 1350, lineCap: 5 },
-  '9x16': { width: 1080, height: 1920, lineCap: 6 },
+  '1x1': { width: 1080, height: 1080, lineCap: 4, slotHeightRatio: 1 },
+  '4x5': { width: 1080, height: 1350, lineCap: 5, slotHeightRatio: 0.3333 },
+  '9x16': { width: 1080, height: 1920, lineCap: 6, slotHeightRatio: 0.4 },
 };
 
 /**
@@ -45,37 +52,40 @@ export function pickFontSize(
   text: string,
   maxWidth: number,
   lineCap: number,
+  maxHeight: number = Number.POSITIVE_INFINITY,
 ): number {
   measure.textContent = text;
   measure.style.width = `${maxWidth}px`;
   measure.style.maxWidth = `${maxWidth}px`;
   measure.style.textWrap = 'balance';
 
-  const probe = (size: number): { lines: number; overflows: boolean } => {
+  const probe = (
+    size: number,
+  ): { lines: number; overflows: boolean; height: number } => {
     measure.style.fontSize = `${size}px`;
-    // Force layout flush for the new size.
-    void measure.offsetHeight;
-    const rectHeight = measure.getBoundingClientRect().height;
+    // offsetHeight is the unscaled layout-box height in CSS pixels.
+    // getBoundingClientRect() returns transformed bounds — the measure mirror
+    // lives inside .stage-scaler which has transform: scale(), so rect height
+    // would be in scaled units while maxHeight/line-height are unscaled.
+    const rectHeight = measure.offsetHeight;
     const lh = parseFloat(getComputedStyle(measure).lineHeight);
     const lineHeight = Number.isFinite(lh) && lh > 0 ? lh : size * 1.1;
     const lines = Math.max(1, Math.round(rectHeight / lineHeight));
-    // scrollWidth detects single-word overflow (one word longer than the
-    // container can never wrap further). 1-px tolerance absorbs sub-pixel
-    // rounding from text-wrap: balance.
     const overflows = measure.scrollWidth > maxWidth + 1;
-    return { lines, overflows };
+    return { lines, overflows, height: rectHeight };
   };
 
   for (let i = POSTER_FRAME_DISPLAY_STEPS.length - 1; i >= 0; i--) {
     const size = POSTER_FRAME_DISPLAY_STEPS[i];
-    const { lines, overflows } = probe(size);
-    if (lines <= lineCap && !overflows) {
+    const { lines, overflows, height } = probe(size);
+    if (lines <= lineCap && !overflows && height <= maxHeight) {
       if (i > 0 && hasOrphanLastWord(measure)) {
         const downSize = POSTER_FRAME_DISPLAY_STEPS[i - 1];
         const downProbe = probe(downSize);
         if (
           downProbe.lines <= lineCap &&
           !downProbe.overflows &&
+          downProbe.height <= maxHeight &&
           !hasOrphanLastWord(measure)
         ) {
           return downSize;

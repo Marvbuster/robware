@@ -41,6 +41,16 @@ export const PosterFrame = forwardRef<HTMLDivElement, PosterFrameProps>(function
     Math.min(spec.width, spec.height) * POSTER_FRAME_SAFE_MARGIN_RATIO,
   );
   const innerWidth = spec.width - 2 * safeMargin;
+  // Pixel height of the headline slot — mirrors the CSS rules in styles.css:
+  //   1x1   → top safeMargin, bottom safeMargin (full inner column)
+  //   4x5   → top safeMargin, height calc(33.33% - safeMargin)
+  //   9x16  → top safeMargin, height calc(40% - safeMargin)
+  // Passing this to pickFontSize lets the fit routine enforce vertical fit, so
+  // a large font with lines ≤ lineCap can't still overflow the slot vertically.
+  const slotHeight =
+    ratio === '1x1'
+      ? spec.height - 2 * safeMargin
+      : spec.height * spec.slotHeightRatio - safeMargin;
 
   const frameRef = useRef<HTMLDivElement | null>(null);
   const headlineRef = useRef<HTMLHeadingElement | null>(null);
@@ -62,7 +72,7 @@ export const PosterFrame = forwardRef<HTMLDivElement, PosterFrameProps>(function
     const measure = measureRef.current;
     if (!measure) return;
     const t0 = performance.now();
-    const next = pickFontSize(measure, displayText, innerWidth, spec.lineCap);
+    const next = pickFontSize(measure, displayText, innerWidth, spec.lineCap, slotHeight);
     const elapsed = performance.now() - t0;
     if (typeof import.meta !== 'undefined' && import.meta.env?.DEV && elapsed > 16) {
       console.warn(
@@ -71,7 +81,7 @@ export const PosterFrame = forwardRef<HTMLDivElement, PosterFrameProps>(function
       );
     }
     setFontSize(next);
-  }, [displayText, innerWidth, spec.lineCap, ratio, preset]);
+  }, [displayText, innerWidth, slotHeight, spec.lineCap, ratio, preset]);
 
   // Re-fit synchronously on text / ratio / preset change so the preview never
   // shows a stale size between frames.

@@ -567,6 +567,12 @@ body {
 }
 
 .poster-frame__headline {
+  /* The headline sits inside a flex slot whose intrinsic main-size would
+     otherwise let the heading grow to max-content width and not wrap.
+     Pinning width to fill the slot forces wrapping at the slot boundary
+     (same width the measure mirror uses for the fit-to-frame probe). */
+  width: 100%;
+  max-width: 100%;
   margin: 0;
   color: var(--ink);
   font-family: var(--font-display-serif);
