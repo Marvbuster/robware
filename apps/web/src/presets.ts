@@ -36,9 +36,16 @@ export const PRESETS: Preset[] = [
 ];
 
 export const ASPECTS: Aspect[] = [
-  { id: 'square', label: '1:1', hint: 'Square · feed', width: 1080, height: 1080 },
-  { id: 'portrait', label: '4:5', hint: 'Portrait · feed', width: 1080, height: 1350 },
-  { id: 'story', label: '9:16', hint: 'Story · reels', width: 1080, height: 1920 },
+  { id: 'square', ratio: '1x1', label: '1:1', hint: 'Square · feed', width: 1080, height: 1080 },
+  {
+    id: 'portrait',
+    ratio: '4x5',
+    label: '4:5',
+    hint: 'Portrait · feed',
+    width: 1080,
+    height: 1350,
+  },
+  { id: 'story', ratio: '9x16', label: '9:16', hint: 'Story · reels', width: 1080, height: 1920 },
 ];
 
 export const DEFAULT_TEXT = 'The thing you keep almost saying. Say it. Set it. Ship it.';

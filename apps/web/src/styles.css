@@ -93,25 +93,25 @@
  * switch a poster's preset, change [data-preset] on the .poster — that's it.
  * ===========================================================================*/
 
-.poster[data-preset='editorial'] {
+.poster-frame[data-preset='editorial'] {
   --paper: var(--color-editorial-paper);
   --ink: var(--color-editorial-ink);
   --accent: var(--color-editorial-accent);
   --mute: var(--color-editorial-mute);
 }
-.poster[data-preset='monolith'] {
+.poster-frame[data-preset='monolith'] {
   --paper: var(--color-monolith-paper);
   --ink: var(--color-monolith-ink);
   --accent: var(--color-monolith-accent);
   --mute: var(--color-monolith-mute);
 }
-.poster[data-preset='salon'] {
+.poster-frame[data-preset='salon'] {
   --paper: var(--color-salon-paper);
   --ink: var(--color-salon-ink);
   --accent: var(--color-salon-accent);
   --mute: var(--color-salon-mute);
 }
-.poster[data-preset='vapor'] {
+.poster-frame[data-preset='vapor'] {
   --paper: var(--color-vapor-paper);
   --ink: var(--color-vapor-ink);
   --accent: var(--color-vapor-accent);
@@ -499,218 +499,206 @@ body {
 }
 
 /* =============================================================================
- * Poster (the exported surface) — token-only styling below this point. The
- * surface is square-cut (radius-0) on purpose for export. Components that live
- * inside .poster-frame must reference only --paper / --ink / --accent / --mute,
- * the type tokens, and the motion tokens.
+ * PosterFrame (the exported surface) — token-only styling. The frame renders
+ * at its true export dimensions (1080 × {1080,1350,1920}); the preview stage
+ * scales the whole box via a CSS transform so the inner pixel ramp stays
+ * stable. Anything inside .poster-frame may reference only --paper / --ink /
+ * --accent / --mute (preset-bound above), the type tokens, and the motion
+ * tokens — no hex literals, no off-scale spacing.
+ *
+ * Composition is laid out per ratio via absolute positioning inside the safe
+ * margin. Headline anchor and watermark slot follow §6 of the design bar:
+ *   1:1  → headline vertically centered, watermark bottom-right of safe area
+ *   4:5  → headline anchored to the top-third baseline, watermark bottom-right
+ *   9:16 → headline lives in top 40% band, watermark in bottom 12% band
  * ===========================================================================*/
-
-.poster {
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--radius-0);
-  background: var(--paper);
-  color: var(--ink);
-}
 
 .poster-frame {
   position: relative;
-  flex: 1;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  padding: var(--space-24) var(--space-16);
-  gap: var(--space-12);
-  z-index: 1;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: var(--radius-0);
+  background: var(--paper);
+  color: var(--ink);
+  /* hanging-punctuation is a v0 spec requirement; ignored by non-supporting
+     engines without breaking layout. */
+  hanging-punctuation: first last;
 }
 
-.poster[data-aspect='story'] .poster-frame {
-  padding: var(--space-32) var(--space-24);
-  gap: var(--space-16);
+.poster-frame__headline-slot {
+  position: absolute;
+  left: var(--pframe-safe-margin);
+  right: var(--pframe-safe-margin);
+  display: flex;
+  /* The headline aligns to the BOTTOM of its slot so the baseline of the last
+     line sits on the anchor (top-third for 4:5, top-of-bottom-of-headline-band
+     for 9:16). For 1:1 we override to center. */
+  align-items: flex-end;
+  justify-content: flex-start;
 }
 
-.poster-eyebrow {
-  display: inline-flex;
+.poster-frame[data-ratio='1x1'] .poster-frame__headline-slot {
+  top: var(--pframe-safe-margin);
+  bottom: var(--pframe-safe-margin);
   align-items: center;
-  gap: var(--space-3);
-  font-family: var(--font-display-sans);
-  font-size: 20px;
-  letter-spacing: 0.36em;
-  text-transform: uppercase;
+}
+
+.poster-frame[data-ratio='4x5'] .poster-frame__headline-slot {
+  top: var(--pframe-safe-margin);
+  /* Bottom of the headline slot sits at 33.33% of frame height — the spec's
+     "top third baseline". The headline aligns to slot bottom so the last line
+     baseline lands on the anchor. */
+  height: calc(33.33% - var(--pframe-safe-margin));
+}
+
+.poster-frame[data-ratio='9x16'] .poster-frame__headline-slot {
+  top: var(--pframe-safe-margin);
+  /* Top 40% band; headline aligns to slot bottom so the line stack rests just
+     above the negative-space middle. */
+  height: calc(40% - var(--pframe-safe-margin));
+}
+
+.poster-frame__headline {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display-serif);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1,
+    'clig' 1,
+    'dlig' 1;
+}
+
+.poster-frame__watermark-slot {
+  position: absolute;
+  right: var(--pframe-safe-margin);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.poster-frame[data-ratio='1x1'] .poster-frame__watermark-slot,
+.poster-frame[data-ratio='4x5'] .poster-frame__watermark-slot {
+  bottom: var(--pframe-safe-margin);
+}
+
+.poster-frame[data-ratio='9x16'] .poster-frame__watermark-slot {
+  left: var(--pframe-safe-margin);
+  bottom: 0;
+  height: 12%;
+  align-items: center;
+}
+
+.poster-frame__watermark {
+  font-family: inherit;
   font-weight: 500;
   color: var(--mute);
-}
-
-.poster-eyebrow-dot {
-  width: var(--space-3);
-  height: var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--accent);
-}
-
-.poster-body {
-  display: grid;
-  place-items: center;
-  text-align: center;
-}
-
-.poster-text {
-  margin: 0;
-  max-width: 18ch;
-  text-wrap: balance;
-  color: var(--ink);
-}
-
-.poster-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-  font-family: var(--font-display-sans);
-  font-size: 20px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--mute);
-}
-
-.poster-mark {
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.poster-rule {
-  flex: 1;
-  height: 1px;
-  background: var(--mute);
-  opacity: 0.5;
-}
-
-.poster-meta {
+  font-feature-settings:
+    'smcp' 1,
+    'c2sc' 1,
+    'kern' 1;
+  letter-spacing: 0.08em;
+  /* 1.4% of the frame's shortest edge per §4 of the design bar. Replaced with
+     the optically-aligned <Watermark/> component in ROB-10. */
+  font-size: calc(min(var(--pframe-w), var(--pframe-h)) * 0.014);
+  line-height: 1;
   white-space: nowrap;
 }
 
-/* ---------- Preset: Editorial (Fraunces, cream paper, oxblood accent) ---- */
+/* ---------- Preset display faces (token-driven) ------------------------- */
 
-.poster[data-preset='editorial'] {
+.poster-frame[data-preset='editorial'] {
   font-family: var(--font-display-serif);
 }
-
-.poster[data-preset='editorial'] .poster-text {
+.poster-frame[data-preset='editorial'] .poster-frame__headline {
   font-family: var(--font-display-serif);
-  font-weight: 400;
-  font-size: 132px;
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  font-feature-settings:
-    'lnum' 1,
-    'kern' 1,
-    'liga' 1;
+  font-weight: 500;
 }
 
-.poster[data-preset='editorial'][data-aspect='story'] .poster-text {
-  font-size: 156px;
-}
-
-.poster[data-preset='editorial'][data-aspect='square'] .poster-text {
-  font-size: 116px;
-}
-
-.poster[data-preset='editorial']::before {
-  content: '';
-  position: absolute;
-  inset: var(--space-8);
-  border: 1px solid var(--mute);
-  opacity: 0.25;
-  pointer-events: none;
-}
-
-/* ---------- Preset: Monolith (Space Grotesk, near-black paper, gold) ---- */
-
-.poster[data-preset='monolith'] {
+.poster-frame[data-preset='monolith'] {
   font-family: var(--font-display-sans);
 }
-
-.poster[data-preset='monolith'] .poster-text {
+.poster-frame[data-preset='monolith'] .poster-frame__headline {
   font-family: var(--font-display-sans);
   font-weight: 700;
-  font-size: 138px;
-  line-height: 0.96;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.035em;
   text-transform: uppercase;
+  line-height: 0.96;
 }
 
-.poster[data-preset='monolith'][data-aspect='story'] .poster-text {
-  font-size: 168px;
+.poster-frame[data-preset='salon'] {
+  font-family: var(--font-display-italic);
+}
+.poster-frame[data-preset='salon'] .poster-frame__headline {
+  font-family: var(--font-display-italic);
+  font-style: italic;
+  font-weight: 400;
+  text-align: center;
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1,
+    'salt' 1;
+}
+.poster-frame[data-preset='salon'] .poster-frame__headline-slot {
+  justify-content: center;
 }
 
-.poster[data-preset='monolith'][data-aspect='square'] .poster-text {
-  font-size: 124px;
+.poster-frame[data-preset='vapor'] {
+  font-family: var(--font-display-sans);
+}
+.poster-frame[data-preset='vapor'] .poster-frame__headline {
+  font-family: var(--font-display-sans);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.poster[data-preset='monolith']::after {
-  content: '';
+/* ---------- Debug overlay (?debug=grid) --------------------------------- */
+
+.poster-frame__debug {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.poster-frame__debug-safe {
+  position: absolute;
+  inset: var(--pframe-safe-margin);
+  outline: 1px dashed rgba(255, 64, 64, 0.55);
+  outline-offset: -1px;
+}
+
+.poster-frame__debug-line {
   position: absolute;
   left: 0;
   right: 0;
+  border-top: 1px dashed rgba(64, 128, 255, 0.55);
+}
+.poster-frame__debug-line--third {
+  top: 33.33%;
+}
+
+.poster-frame__debug-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.poster-frame__debug-band--headline {
+  top: 0;
+  height: 40%;
+  background: rgba(64, 128, 255, 0.08);
+  border-bottom: 1px dashed rgba(64, 128, 255, 0.55);
+}
+.poster-frame__debug-band--watermark {
   bottom: 0;
-  height: var(--space-3);
-  background: var(--accent);
-}
-
-/* ---------- Preset: Salon (Instrument Serif italic, blush paper, oxblood) */
-
-.poster[data-preset='salon'] {
-  font-family: var(--font-display-italic);
-}
-
-.poster[data-preset='salon'] .poster-text {
-  font-family: var(--font-display-italic);
-  font-weight: 400;
-  font-style: italic;
-  font-size: 134px;
-  line-height: 1.04;
-  letter-spacing: -0.02em;
-}
-
-.poster[data-preset='salon'][data-aspect='story'] .poster-text {
-  font-size: 162px;
-}
-
-.poster[data-preset='salon'][data-aspect='square'] .poster-text {
-  font-size: 118px;
-}
-
-.poster[data-preset='salon'] .poster-rule {
-  background: var(--accent);
-  opacity: 0.7;
-}
-
-/* ---------- Preset: Vapor (Inter, deep indigo paper, violet accent) ------ */
-
-.poster[data-preset='vapor'] {
-  font-family: var(--font-ui);
-}
-
-.poster[data-preset='vapor'] .poster-text {
-  font-family: var(--font-ui);
-  font-weight: 600;
-  font-size: 132px;
-  line-height: 1.02;
-  letter-spacing: -0.03em;
-}
-
-.poster[data-preset='vapor'][data-aspect='story'] .poster-text {
-  font-size: 158px;
-}
-
-.poster[data-preset='vapor'][data-aspect='square'] .poster-text {
-  font-size: 118px;
-}
-
-.poster[data-preset='vapor'] .poster-rule {
-  background: var(--accent);
-  opacity: 0.55;
+  height: 12%;
+  background: rgba(64, 200, 128, 0.1);
+  border-top: 1px dashed rgba(64, 200, 128, 0.55);
 }
 
 /* =============================================================================

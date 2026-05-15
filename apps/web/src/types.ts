@@ -2,8 +2,12 @@ export type PresetId = 'editorial' | 'monolith' | 'salon' | 'vapor';
 
 export type AspectId = 'square' | 'portrait' | 'story';
 
+export type PosterRatioId = '1x1' | '4x5' | '9x16';
+
 export interface Aspect {
   id: AspectId;
+  /** Ratio token consumed by PosterFrame. */
+  ratio: PosterRatioId;
   label: string;
   hint: string;
   width: number;

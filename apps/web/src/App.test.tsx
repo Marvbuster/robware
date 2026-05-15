@@ -1,26 +1,34 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { App } from './App';
 import { DEFAULT_TEXT, PRESETS } from './presets';
 
 function getPoster(): HTMLElement {
   const main = screen.getByRole('main', { name: /poster preview/i });
-  const poster = main.querySelector<HTMLElement>('.poster');
-  if (!poster) throw new Error('Poster element not found');
+  const poster = main.querySelector<HTMLElement>('.poster-frame');
+  if (!poster) throw new Error('PosterFrame element not found');
   return poster;
+}
+
+function getHeadlineText(poster: HTMLElement): string {
+  const headline = poster.querySelector<HTMLElement>(
+    '.poster-frame__headline:not(.poster-frame__headline--measure)',
+  );
+  if (!headline) throw new Error('PosterFrame headline not found');
+  return headline.textContent ?? '';
 }
 
 describe('App', () => {
   it('renders the controls header and default text in the poster', () => {
     render(<App />);
     expect(screen.getByRole('heading', { name: /type a sentence/i })).toBeInTheDocument();
-    expect(within(getPoster()).getByText(DEFAULT_TEXT)).toBeInTheDocument();
+    expect(getHeadlineText(getPoster())).toBe(DEFAULT_TEXT);
   });
 
   it('updates the poster when text changes', () => {
     render(<App />);
     const textarea = screen.getByLabelText(/your text/i) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: 'Hello robware' } });
-    expect(within(getPoster()).getByText('Hello robware')).toBeInTheDocument();
+    expect(getHeadlineText(getPoster())).toBe('Hello robware');
   });
 
   it('switches preset when a style is selected', () => {
@@ -41,10 +49,10 @@ describe('App', () => {
     expect(screen.getByRole('radio', { name: /9:16/i })).toBeInTheDocument();
   });
 
-  it('changes aspect when a format is selected', () => {
+  it('changes ratio when a format is selected', () => {
     render(<App />);
     const story = screen.getByRole('radio', { name: /9:16/i });
     fireEvent.click(story);
-    expect(getPoster()).toHaveAttribute('data-aspect', 'story');
+    expect(getPoster()).toHaveAttribute('data-ratio', '9x16');
   });
 });
