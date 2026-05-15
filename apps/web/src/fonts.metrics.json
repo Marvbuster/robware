@@ -1,0 +1,86 @@
+{
+  "Fraunces-VF": {
+    "unitsPerEm": 2000,
+    "ascent": 1956,
+    "descent": -510,
+    "lineGap": 0,
+    "xWidthAvg": 1155.7796222495228,
+    "fallback": "Times New Roman",
+    "sizeAdjust": 0.7029886877730296,
+    "ascentOverride": 1.391203040689272,
+    "descentOverride": 0.3627369891367734,
+    "lineGapOverride": 0.0
+  },
+  "Fraunces-VF-Italic": {
+    "unitsPerEm": 2000,
+    "ascent": 1956,
+    "descent": -510,
+    "lineGap": 0,
+    "xWidthAvg": 1146.409932180705,
+    "fallback": "Times New Roman",
+    "sizeAdjust": 0.7087342644131315,
+    "ascentOverride": 1.379924816827975,
+    "descentOverride": 0.3597963479459444,
+    "lineGapOverride": 0.0
+  },
+  "InstrumentSerif-Regular": {
+    "unitsPerEm": 1000,
+    "ascent": 990,
+    "descent": -310,
+    "lineGap": 0,
+    "xWidthAvg": 374.04210988923177,
+    "fallback": "Times New Roman",
+    "sizeAdjust": 1.0861076580931122,
+    "ascentOverride": 0.9115118493300663,
+    "descentOverride": 0.2854229023154753,
+    "lineGapOverride": 0.0
+  },
+  "InstrumentSerif-Italic": {
+    "unitsPerEm": 1000,
+    "ascent": 990,
+    "descent": -310,
+    "lineGap": 0,
+    "xWidthAvg": 396.77598657597446,
+    "fallback": "Times New Roman",
+    "sizeAdjust": 1.0238774869058551,
+    "ascentOverride": 0.966912558055913,
+    "descentOverride": 0.3027705989872051,
+    "lineGapOverride": 0.0
+  },
+  "SpaceGrotesk-VF": {
+    "unitsPerEm": 1000,
+    "ascent": 984,
+    "descent": -292,
+    "lineGap": 0,
+    "xWidthAvg": 540.853064852825,
+    "fallback": "Helvetica Neue",
+    "sizeAdjust": 0.8948826057437694,
+    "ascentOverride": 1.0995855698660741,
+    "descentOverride": 0.3262997829277374,
+    "lineGapOverride": 0.0
+  },
+  "Inter-VF": {
+    "unitsPerEm": 2048,
+    "ascent": 1984,
+    "descent": -494,
+    "lineGap": 0,
+    "xWidthAvg": 1057.3196296407273,
+    "fallback": "Helvetica Neue",
+    "sizeAdjust": 0.9374951265558329,
+    "ascentOverride": 1.0333387049797167,
+    "descentOverride": 0.2572930041632964,
+    "lineGapOverride": 0.0
+  },
+  "Inter-VF-Italic": {
+    "unitsPerEm": 2048,
+    "ascent": 1984,
+    "descent": -494,
+    "lineGap": 0,
+    "xWidthAvg": 1064.844325252949,
+    "fallback": "Helvetica Neue",
+    "sizeAdjust": 0.9308703408496236,
+    "ascentOverride": 1.0406927339803338,
+    "descentOverride": 0.25912409807776454,
+    "lineGapOverride": 0.0
+  }
+}
