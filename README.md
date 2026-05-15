@@ -2,12 +2,21 @@
 
 Breathtaking apps for web and other platforms.
 
+## robware Poster (v0)
+
+The first robware app: a free, single-page tool that turns a short sentence into a beautifully-typeset poster you can download. Editorial typography, four hand-tuned looks, three social aspects. Pure client-side — your text never leaves the browser. No account, no upload, no fuss.
+
+- **Live:** <https://marvbuster.github.io/robware/>
+- **Source:** `apps/web/`
+- **What it does:** type a sentence, pick a style (Editorial · Monolith · Salon · Vapor) and an aspect (1:1 · 4:5 · 9:16), download a PNG at full social resolution.
+- **Shareable looks:** `?preset=monolith&aspect=story` etc.
+
 ## Repo layout
 
 ```
 robware/
   apps/
-    web/                # Vite + React + TypeScript SPA
+    web/                # Vite + React + TypeScript SPA — the Poster app
   packages/             # shared libraries (empty until >=2 apps share)
   .github/workflows/    # CI + GitHub Pages deploy
 ```
@@ -44,7 +53,7 @@ All run from the repo root.
 
 ## Deploy
 
-`main` deploys automatically to GitHub Pages via `.github/workflows/deploy.yml`. The live URL is published in the workflow run output.
+`main` deploys automatically to GitHub Pages via `.github/workflows/deploy.yml`. The live URL is published in the workflow run output and pinned at the top of this README.
 
 ## Engineering standards
 
