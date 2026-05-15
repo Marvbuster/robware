@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>robware — typography proof</title>
+    <link rel="preload" href="/fonts/Fraunces-VF.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      /* Mirror the @font-face block from fonts.css so this proof page stays
+       * verifiable even before the React bundle loads. Pulled from the
+       * generated apps/web/src/fonts.css — keep these two in sync. */
+      @font-face {
+        font-family: 'Fraunces';
+        src: url('/fonts/Fraunces-VF.woff2') format('woff2');
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        size-adjust: 70.2989%;
+        ascent-override: 139.1203%;
+        descent-override: 36.2737%;
+        line-gap-override: 0%;
+      }
+      @font-face {
+        font-family: 'Fraunces';
+        src: url('/fonts/Fraunces-VF-Italic.woff2') format('woff2');
+        font-style: italic;
+        font-weight: 100 900;
+        font-display: swap;
+        size-adjust: 70.8734%;
+        ascent-override: 137.9925%;
+        descent-override: 35.9796%;
+        line-gap-override: 0%;
+      }
+      @font-face {
+        font-family: 'Instrument Serif';
+        src: url('/fonts/InstrumentSerif-Regular.woff2') format('woff2');
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        size-adjust: 108.6108%;
+        ascent-override: 91.1512%;
+        descent-override: 28.5423%;
+        line-gap-override: 0%;
+      }
+      @font-face {
+        font-family: 'Instrument Serif';
+        src: url('/fonts/InstrumentSerif-Italic.woff2') format('woff2');
+        font-style: italic;
+        font-weight: 400;
+        font-display: swap;
+        size-adjust: 102.3877%;
+        ascent-override: 96.6913%;
+        descent-override: 30.2771%;
+        line-gap-override: 0%;
+      }
+      @font-face {
+        font-family: 'Space Grotesk';
+        src: url('/fonts/SpaceGrotesk-VF.woff2') format('woff2');
+        font-style: normal;
+        font-weight: 300 700;
+        font-display: swap;
+        size-adjust: 89.4883%;
+        ascent-override: 109.9586%;
+        descent-override: 32.6300%;
+        line-gap-override: 0%;
+      }
+      @font-face {
+        font-family: 'Inter';
+        src: url('/fonts/Inter-VF.woff2') format('woff2');
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        size-adjust: 93.7495%;
+        ascent-override: 103.3339%;
+        descent-override: 25.7293%;
+        line-gap-override: 0%;
+      }
+      @font-face {
+        font-family: 'Inter';
+        src: url('/fonts/Inter-VF-Italic.woff2') format('woff2');
+        font-style: italic;
+        font-weight: 100 900;
+        font-display: swap;
+        size-adjust: 93.0870%;
+        ascent-override: 104.0693%;
+        descent-override: 25.9124%;
+        line-gap-override: 0%;
+      }
+
+      :root {
+        --ink: #161412;
+        --paper: #f4efe6;
+        --mute: #7a6f62;
+        color-scheme: light;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-feature-settings: 'kern' 1;
+        text-rendering: optimizeLegibility;
+      }
+
+      main {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 4rem 2rem 6rem;
+      }
+
+      header h1 {
+        font-family: 'Fraunces', 'Times New Roman', Times, serif;
+        font-weight: 500;
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        margin: 0 0 0.25rem;
+        font-feature-settings: 'liga' 1, 'clig' 1, 'dlig' 1, 'kern' 1, 'onum' 1;
+        font-variant-numeric: oldstyle-nums;
+        font-variation-settings: 'opsz' 144, 'SOFT' 50;
+      }
+
+      header p {
+        color: var(--mute);
+        font-size: 0.875rem;
+        margin: 0 0 3rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      section {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid color-mix(in srgb, var(--mute) 30%, transparent);
+      }
+
+      section h2 {
+        font-family: 'Fraunces', 'Times New Roman', Times, serif;
+        font-weight: 500;
+        font-size: 1.5rem;
+        margin: 0 0 0.5rem;
+        font-feature-settings: 'liga' 1, 'kern' 1;
+      }
+
+      .sample-fraunces {
+        font-family: 'Fraunces', 'Times New Roman', Times, serif;
+        font-weight: 500;
+        font-size: 3.5rem;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        font-feature-settings: 'liga' 1, 'clig' 1, 'dlig' 1, 'kern' 1, 'onum' 1;
+        font-variant-numeric: oldstyle-nums;
+      }
+      .sample-instrument {
+        font-family: 'Instrument Serif', 'Times New Roman', Times, serif;
+        font-style: italic;
+        font-size: 3.25rem;
+        line-height: 1.1;
+        font-feature-settings: 'liga' 1, 'salt' 1, 'kern' 1;
+      }
+      .sample-space {
+        font-family: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-weight: 600;
+        font-size: 3rem;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+        font-feature-settings: 'kern' 1, 'ss01' 1;
+      }
+      .sample-inter {
+        font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-weight: 500;
+        font-size: 1rem;
+        line-height: 1.5;
+        font-feature-settings: 'kern' 1;
+      }
+
+      .ligatures {
+        font-size: 4rem;
+        font-family: 'Fraunces', 'Times New Roman', Times, serif;
+        font-feature-settings: 'liga' 1, 'clig' 1, 'dlig' 1, 'kern' 1;
+        line-height: 1.05;
+      }
+      .ligatures span + span {
+        margin-left: 1.5rem;
+      }
+      .numerals-old {
+        font-family: 'Fraunces', 'Times New Roman', Times, serif;
+        font-size: 2rem;
+        font-feature-settings: 'onum' 1, 'kern' 1;
+        font-variant-numeric: oldstyle-nums;
+      }
+      .numerals-lining {
+        font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 2rem;
+        font-feature-settings: 'lnum' 1, 'tnum' 1, 'kern' 1;
+        font-variant-numeric: lining-nums tabular-nums;
+      }
+
+      .smallcaps {
+        font-family: 'Fraunces', 'Times New Roman', Times, serif;
+        font-size: 1.5rem;
+        font-feature-settings: 'smcp' 1, 'c2sc' 1, 'kern' 1;
+        font-variant-caps: all-small-caps;
+        letter-spacing: 0.08em;
+        color: var(--mute);
+      }
+
+      .width-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.25rem;
+        padding: 1rem 0;
+      }
+      .width-row span.label {
+        font-family: 'Inter', monospace;
+        font-size: 0.75rem;
+        color: var(--mute);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .width-row .real {
+        font-family: 'Fraunces', 'Times New Roman', Times, serif;
+        font-size: 4rem;
+        line-height: 1.05;
+        font-feature-settings: 'liga' 1, 'kern' 1;
+        font-weight: 500;
+      }
+      .width-row .fallback {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 4rem;
+        line-height: 1.05;
+      }
+      #width-report {
+        font-family: 'Inter', monospace;
+        white-space: pre-wrap;
+        font-size: 0.875rem;
+        background: rgba(0, 0, 0, 0.04);
+        padding: 1rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+        line-height: 1.5;
+      }
+      .ok { color: #0a7d2a; }
+      .bad { color: #a8341b; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>robware — typography proof</h1>
+        <p>OFL / self-hosted woff2 / matched fallback metrics</p>
+      </header>
+
+      <section>
+        <h2>Fraunces (variable)</h2>
+        <div class="sample-fraunces">
+          Editorial weeklies still beat the algorithm. — 2026
+        </div>
+      </section>
+
+      <section>
+        <h2>Instrument Serif (italic)</h2>
+        <div class="sample-instrument">
+          A handsome italic for the slower stretches.
+        </div>
+      </section>
+
+      <section>
+        <h2>Space Grotesk</h2>
+        <div class="sample-space">Display sans — wide, geometric.</div>
+      </section>
+
+      <section>
+        <h2>Inter (body / UI)</h2>
+        <div class="sample-inter">
+          Quick brown foxes 0123456789 file flow afford
+          — used wherever Inter is the workhorse for chrome and body.
+        </div>
+      </section>
+
+      <section>
+        <h2>OpenType features</h2>
+        <div class="ligatures"><span>file</span><span>flow</span><span>afford</span></div>
+        <p style="margin-top: 0.5rem; color: var(--mute);">
+          The <em>fi</em>, <em>fl</em>, and <em>ff</em> pairs are single ligature glyphs when
+          Fraunces is active.
+        </p>
+        <div class="numerals-old" style="margin-top: 1.5rem;">
+          Body numerals (Fraunces, onum): 1234567890 — old-style figures hang below the baseline.
+        </div>
+        <div class="numerals-lining">
+          UI numerals (Inter, lnum + tnum): 1234567890 — lining, tabular columns.
+        </div>
+        <div class="smallcaps" style="margin-top: 1.5rem;">robware</div>
+      </section>
+
+      <section>
+        <h2>Fallback width delta — Fraunces vs Times New Roman</h2>
+        <div class="width-row">
+          <span class="label">Real face (Fraunces)</span>
+          <div id="real-headline" class="real">
+            Editorial weeklies still beat the algorithm.
+          </div>
+        </div>
+        <div class="width-row">
+          <span class="label">Fallback only (Times New Roman, no real face)</span>
+          <div id="fallback-headline" class="fallback">
+            Editorial weeklies still beat the algorithm.
+          </div>
+        </div>
+        <div id="width-report">Measuring…</div>
+        <p style="margin-top: 0.5rem; color: var(--mute);">
+          Acceptance: |delta| ≤ 2%. Reload with <code>?nofont</code> appended to the URL to force
+          the fallback paint and visually verify there is no width jolt during swap.
+        </p>
+      </section>
+    </main>
+
+    <script>
+      (async function report() {
+        const reportEl = document.getElementById('width-report');
+        try {
+          // Wait for Fraunces to load before measuring the real headline.
+          await document.fonts.load('500 4rem Fraunces');
+          await document.fonts.ready;
+          const real = document.getElementById('real-headline');
+          const fb = document.getElementById('fallback-headline');
+          const realW = real.getBoundingClientRect().width;
+          const fbW = fb.getBoundingClientRect().width;
+          const delta = ((realW - fbW) / fbW) * 100;
+          const status = Math.abs(delta) <= 2 ? 'ok' : 'bad';
+          reportEl.innerHTML = [
+            `real (Fraunces):  ${realW.toFixed(2)} px`,
+            `fallback (Times): ${fbW.toFixed(2)} px`,
+            `<span class="${status}">delta:            ${delta.toFixed(2)}%  ` +
+              `(${status === 'ok' ? 'within' : 'OUTSIDE'} ±2% target)</span>`,
+          ].join('\n');
+        } catch (e) {
+          reportEl.textContent = 'Measurement failed: ' + e.message;
+        }
+      })();
+
+      // Honor ?nofont — strip Fraunces declarations so the page paints with
+      // Times New Roman only. Useful for visually confirming the swap window.
+      if (new URLSearchParams(location.search).has('nofont')) {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(
+          "@font-face { font-family: 'Fraunces'; src: local('__no-such-font__'); }",
+        );
+        document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+      }
+    </script>
+  </body>
+</html>
