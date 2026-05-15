@@ -1,4 +1,14 @@
+import { WatermarkDemo } from './components/__demo__/WatermarkDemo';
+
 export function App() {
+  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const demo = params?.get('demo');
+  const showGrid = params?.get('debug') === 'grid';
+
+  if (demo === 'watermark') {
+    return <WatermarkDemo showGrid={showGrid} />;
+  }
+
   return (
     <main className="min-h-screen flex items-center justify-center px-6">
       <div className="max-w-xl text-center space-y-6">
